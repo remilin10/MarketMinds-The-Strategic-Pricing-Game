@@ -20,7 +20,7 @@ Matplotlib
 
 # Installation
 1. Clone the repository:
-   git clone https://github.com/yourusername/flask-demand-profit-game.git
+   git clone https://github.com/remilin10/flask-demand-profit-game.git
    cd flask-demand-profit-game
 
 2. Create a virtual environment and activate it:
