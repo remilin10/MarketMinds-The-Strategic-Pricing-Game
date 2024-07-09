@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maximize Your Profit</title>
+    <style>
+        .container {
+            width: 80%; 
+            margin: 0 auto;
+        }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        h1, .header {
+            text-align: center;
+        }
+        #user-status {
+            color: red;
+            margin-top: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 30%;
+            text-align: center;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            var socket = io.connect(window.location.origin);
+
+            socket.on('file_updated', function(data) {
+                console.log(data.message); // Log the message from the server
+                window.location.reload(true); // Force a full reload from the server
+            });
+
+            var modal = document.getElementById('userModal');
+            if (!sessionStorage.getItem('user')) {
+                modal.style.display = "block";
+            }
+
+            window.setUser = function(user) {
+                sessionStorage.setItem('user', user);
+                document.getElementById('selectedUser').value = user;
+                document.getElementById('userForm').submit();
+                modal.style.display = "none";
+            };
+        });
+
+        function validateInput() {
+            var inputElement = document.getElementById('price');
+            var inputValue = parseFloat(inputElement.value);
+            if (inputValue < 2 || inputValue > 15) {
+                alert('Input must be between 2 and 15.');
+                return false;
+            }
+            return true;
+        }
+
+        function changePrice(change) {
+            var input = document.getElementById('price');
+            var currentValue = parseFloat(input.value) || 0;
+            input.value = Math.max(2, Math.min(15, (currentValue + change))).toFixed(1);
+        }
+    </script>
+</head>
+<body>
+    <!-- Modal for user selection -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <h2>Choose Your Role</h2>
+            <button onclick="setUser(1)">User 1</button>
+            <button onclick="setUser(2)">User 2</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>Maximize Your Profit</h1>
+        <div id="user-status">Group {{ group }} User {{ user }} Round {{ round }}</div>
+    </div>
+    <div class="container">
+        <p>This is a game between two players that spans several rounds.<br>
+            Your objective is to maximize your profit by determining the optimal price for your product.<br>
+            {% if user %}
+            You represent a firm called <strong>Firm{{ '1' if user == 1 else '2' }}</strong>, while the other player represents a firm called <strong>Firm{{ '2' if user == 1 else '1' }}</strong>.<br>
+            {% endif %}
+            In each round, you will be informed of your prices, demands, and profits from previous rounds.<br>
+            Combined with this information, you will decide the price of your product for the current round.<br>
+            Please note that this is not a zero-sum game. Your goal is not to beat the other player but maximizing your own profit.<br>
+         </p>
+         <form method="post" onsubmit="return validateInput();">
+            <label for="price">Set your price:</label>
+            <button type="button" onclick="changePrice(-0.1)">-</button>
+            <input type="number" id="price" name="price" value="7" step="0.1" required>
+            <button type="button" onclick="changePrice(0.1)">+</button>
+            <button type="submit">Submit</button>
+        </form>
+        <form id="userForm" method="POST" style="display:none;">
+            <input type="hidden" id="selectedUser" name="user">
+        </form>
+    </div>
+    </div>
+    <!-- Popup Modal -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <h2>Round Results</h2>
+            <p id="priceInfo"></p>
+            <button id="nextRoundBtn" style="display:none;" onclick="nextRound()">Next Round</button>
+        </div>
+    </div>
+</body>
+</html>

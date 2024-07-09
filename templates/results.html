@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Round Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+            margin: auto;
+            width: 50%;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px #ccc;
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            var socket = io.connect(window.location.origin);
+            socket.on('file_updated', function(data) {
+                console.log(data.message); // Log the message from the server
+                window.location.reload(true); // Force a full reload from the server
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Results for Round {{ round }}</h1>
+    <div class="results">
+        <p>The price you submitted for round {{ round }} is: <strong>{{ prices['Price' + user|string] }}</strong></p>
+        {% if all_submitted %}
+            <p>The price Firm{{ '1' if user == 2 else '2' }} submitted for round {{ round }} is: <strong>{{ prices['Price' + (user == 2 and '1' or '2')] }}</strong></p>
+            <p>Your profit for this round is: <strong>{{ prices['Profit' + user|string] }}</strong></p>
+
+            <!-- Display last 20 rounds' prices -->
+            <h2>Last 20 Rounds</h2>
+            <ul>
+                {% for round in last_20_rounds %}
+                    <li>Round {{ round['Round'] }}: Your Price: {{ round['Price' + user|string] }}, Rival Price: {{ round['Price' + (user == 2 and '1' or '2')] }}</li>
+                {% endfor %}
+            </ul>
+            
+            <img src="data:image/png;base64,{{ demand_profit_plot }}" alt="Demand and Profit Plot">
+            <img src="data:image/png;base64,{{ price_plot }}" alt="Price Comparison Plot">
+            <div class="button-container">
+                <button id="nextRoundBtn" onclick="window.location.href='/'">Next Round</button>
+            </div>
+        {% else %}
+            <p>Firm{{ '1' if user == 2 else '2' }} is still deciding...</p>
+            <p>Please wait for them or refresh the page to update the status.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
