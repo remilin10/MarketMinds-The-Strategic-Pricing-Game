@@ -38,11 +38,11 @@ Matplotlib
 python exp1.py
 2. Open your web browser and go to the URL displayed in the terminal for (example: http://0.0.0.0:5000).
 
-3.Select your user role (User 1 or User 2) when prompted.
+3. Select your user role (User 1 or User 2) when prompted.
 
-4.Set your price for each round and submit it.
+4. Set your price for each round and submit it.
 
-5.View the results, including demand, profit, and price comparisons for the current and previous rounds.
+5. View the results, including demand, profit, and price comparisons for the current and previous rounds.
 
 # File Structure
 exp1.py: The main Flask application file.
